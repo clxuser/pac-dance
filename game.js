@@ -26,7 +26,7 @@ class Game {
     start() {
         this.isRunning = false;
         this.score = 0;
-        console.log('Game started!');
+        console.log('Game startedes!');
     }
 
     stop() {
@@ -115,6 +115,61 @@ class Game {
             console.log(`${index + 1}. ${entry.playerName}: ${entry.score} (${entry.date.toLocaleDateString()})`);
         });
     }
+
+        constructor() {
+        this.score = 0;
+        this.highScore = 0;
+        this.isRunning = false;
+        this.playerScores = new Map();
+        this.currentPlayer = null;
+        this.leaderboard = [];
+        this.maxLeaderboardEntries = 10;
+        this.activePowerUps = new Map();
+        this.powerUpTypes = {
+            doublePoints: { duration: 10000, multiplier: 2 },
+            speedBoost: { duration: 5000, speedIncrease: 1.5 },
+            shield: { duration: 8000 }
+        };
+        this.comboCount = 0;
+        this.lastPointTime = 0;
+        this.comboTimeout = 2000;
+        this.comboStreaks = [
+            { threshold: 5, reward: 'doublePoints' },
+            { threshold: 10, reward: 'speedBoost' },
+            { threshold: 15, reward: 'shield' }
+        ];
+        // Add achievements system
+        this.achievements = {
+            'combo_master': { name: 'Combo Master', description: 'Get a 10x combo', unlocked: false },
+            'speed_demon': { name: 'Speed Demon', description: 'Collect 3 speed boosts', unlocked: false },
+            'shield_expert': { name: 'Shield Expert', description: 'Use shield 5 times', unlocked: false }
+        };
+        this.powerUpCounts = new Map();
+    }
+
+        checkAchievements() {
+        if (this.comboCount >= 10 && !this.achievements.combo_master.unlocked) {
+            this.achievements.combo_master.unlocked = true;
+            console.log('🏆 Achievement Unlocked: Combo Master!');
+        }
+        
+        const speedBoostCount = this.powerUpCounts.get('speedBoost') || 0;
+        if (speedBoostCount >= 3 && !this.achievements.speed_demon.unlocked) {
+            this.achievements.speed_demon.unlocked = true;
+            console.log('🏆 Achievement Unlocked: Speed Demon!');
+        }
+        
+        const shieldCount = this.powerUpCounts.get('shield') || 0;
+        if (shieldCount >= 5 && !this.achievements.shield_expert.unlocked) {
+            this.achievements.shield_expert.unlocked = true;
+            console.log('🏆 Achievement Unlocked: Shield Expert!');
+        }
+    }
+
+    getAchievements() {
+        return this.achievements;
+    }
+    
 
     getPlayerScore(playerName) {
         return this.playerScores.get(playerName) || 0;
