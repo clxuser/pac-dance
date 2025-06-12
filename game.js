@@ -16,6 +16,11 @@ class Game {
         this.comboCount = 0;
         this.lastPointTime = 0;
         this.comboTimeout = 2000; // 2 seconds to maintain combo
+        this.comboStreaks = [
+            { threshold: 5, reward: 'doublePoints' },
+            { threshold: 10, reward: 'speedBoost' },
+            { threshold: 15, reward: 'shield' }
+        ];
     }
 
     start() {
@@ -48,6 +53,7 @@ class Game {
             const now = Date.now();
             if (now - this.lastPointTime < this.comboTimeout) {
                 this.comboCount++;
+                this.checkComboStreakRewards(); // Check for streak rewards
                 points *= (1 + this.comboCount * 0.1); // 10% bonus per combo level
             } else {
                 this.comboCount = 0;
@@ -70,6 +76,15 @@ class Game {
                 console.log(`${this.currentPlayer}'s score: ${playerScore}`);
             }
             console.log(`Score: ${this.score}`);
+        }
+    }
+
+    checkComboStreakRewards() {
+        for (const streak of this.comboStreaks) {
+            if (this.comboCount === streak.threshold) {
+                this.activatePowerUp(streak.reward);
+                console.log(`🏆 Combo Streak ${streak.threshold}x! Reward: ${streak.reward} power-up activated!`);
+            }
         }
     }
 
