@@ -24,7 +24,7 @@ class Game {
     }
 
     start() {
-        this.isRunning = true;
+        this.isRunning = false;
         this.score = 0;
         console.log('Game started!');
     }
