@@ -7,6 +7,12 @@ class Game {
         this.currentPlayer = null;
         this.leaderboard = [];
         this.maxLeaderboardEntries = 10;
+        this.activePowerUps = new Map();
+        this.powerUpTypes = {
+            doublePoints: { duration: 10000, multiplier: 2 },
+            speedBoost: { duration: 5000, speedIncrease: 1.5 },
+            shield: { duration: 8000 }
+        };
     }
 
     start() {
@@ -36,14 +42,34 @@ class Game {
 
     addPoints(points) {
         if (this.isRunning) {
-            this.score += points;
+            let finalPoints = points;
+            if (this.activePowerUps.has('doublePoints')) {
+                finalPoints *= this.powerUpTypes.doublePoints.multiplier;
+            }
+            this.score += finalPoints;
             if (this.currentPlayer) {
-                const playerScore = this.playerScores.get(this.currentPlayer) + points;
+                const playerScore = this.playerScores.get(this.currentPlayer) + finalPoints;
                 this.playerScores.set(this.currentPlayer, playerScore);
                 console.log(`${this.currentPlayer}'s score: ${playerScore}`);
             }
             console.log(`Score: ${this.score}`);
         }
+    }
+
+    activatePowerUp(type) {
+        if (this.powerUpTypes[type]) {
+            this.activePowerUps.set(type, Date.now());
+            console.log(`${type} power-up activated!`);
+            
+            setTimeout(() => {
+                this.activePowerUps.delete(type);
+                console.log(`${type} power-up expired!`);
+            }, this.powerUpTypes[type].duration);
+        }
+    }
+
+    hasPowerUp(type) {
+        return this.activePowerUps.has(type);
     }
 
     updateLeaderboard(playerName, score) {
