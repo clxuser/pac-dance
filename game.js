@@ -5,6 +5,8 @@ class Game {
         this.isRunning = false;
         this.playerScores = new Map();
         this.currentPlayer = null;
+        this.leaderboard = [];
+        this.maxLeaderboardEntries = 10;
     }
 
     start() {
@@ -18,6 +20,9 @@ class Game {
         if (this.score > this.highScore) {
             this.highScore = this.score;
             console.log(`New high score: ${this.highScore}!`);
+        }
+        if (this.currentPlayer) {
+            this.updateLeaderboard(this.currentPlayer, this.score);
         }
         console.log(`Game over! Final score: ${this.score}`);
     }
@@ -41,6 +46,18 @@ class Game {
         }
     }
 
+    updateLeaderboard(playerName, score) {
+        this.leaderboard.push({ playerName, score, date: new Date() });
+        this.leaderboard.sort((a, b) => b.score - a.score);
+        if (this.leaderboard.length > this.maxLeaderboardEntries) {
+            this.leaderboard = this.leaderboard.slice(0, this.maxLeaderboardEntries);
+        }
+        console.log('\nLeaderboard:');
+        this.leaderboard.forEach((entry, index) => {
+            console.log(`${index + 1}. ${entry.playerName}: ${entry.score} (${entry.date.toLocaleDateString()})`);
+        });
+    }
+
     getPlayerScore(playerName) {
         return this.playerScores.get(playerName) || 0;
     }
@@ -51,6 +68,10 @@ class Game {
 
     getHighScore() {
         return this.highScore;
+    }
+
+    getLeaderboard() {
+        return [...this.leaderboard];
     }
 }
 
