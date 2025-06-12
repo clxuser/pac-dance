@@ -13,6 +13,9 @@ class Game {
             speedBoost: { duration: 5000, speedIncrease: 1.5 },
             shield: { duration: 8000 }
         };
+        this.comboCount = 0;
+        this.lastPointTime = 0;
+        this.comboTimeout = 2000; // 2 seconds to maintain combo
     }
 
     start() {
@@ -42,13 +45,27 @@ class Game {
 
     addPoints(points) {
         if (this.isRunning) {
+            const now = Date.now();
+            if (now - this.lastPointTime < this.comboTimeout) {
+                this.comboCount++;
+                points *= (1 + this.comboCount * 0.1); // 10% bonus per combo level
+            } else {
+                this.comboCount = 0;
+            }
+            this.lastPointTime = now;
+
             let finalPoints = points;
             if (this.activePowerUps.has('doublePoints')) {
                 finalPoints *= this.powerUpTypes.doublePoints.multiplier;
             }
-            this.score += finalPoints;
+            
+            if (this.comboCount > 0) {
+                console.log(`Combo x${this.comboCount + 1}! Points multiplied by ${1 + this.comboCount * 0.1}x`);
+            }
+
+            this.score += Math.round(finalPoints);
             if (this.currentPlayer) {
-                const playerScore = this.playerScores.get(this.currentPlayer) + finalPoints;
+                const playerScore = this.playerScores.get(this.currentPlayer) + Math.round(finalPoints);
                 this.playerScores.set(this.currentPlayer, playerScore);
                 console.log(`${this.currentPlayer}'s score: ${playerScore}`);
             }
@@ -98,6 +115,10 @@ class Game {
 
     getLeaderboard() {
         return [...this.leaderboard];
+    }
+
+    getComboCount() {
+        return this.comboCount;
     }
 }
 
